@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>國中理化｜上皿天平模擬操作</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>⚖️ 上皿天平模擬操作</h1>
+  <p class="subtitle">練習正確的天平操作流程：歸零校正 → 放置待測物 → 加減砝碼與游碼 → 讀取質量</p>
+</header>
+
+<main>
+  <section id="step-indicator">
+    <div class="step active" id="step1">① 歸零校正</div>
+    <div class="step" id="step2">② 測量金屬塊</div>
+    <div class="step" id="step3">③ 測量綠豆</div>
+    <div class="step" id="step4">④ 完成</div>
+  </section>
+
+  <section id="message-box">
+    請先進行「歸零校正」：兩盤皆空的狀態下，指針會因製造誤差而偏移。請調整平衡螦旋，使指針恢復置中後，按下「確認歸零」。
+  </section>
+
+  <section id="balance-area">
+    <div id="balance">
+
+      <div id="stand">
+        <div class="pillar"></div>
+        <div class="base"></div>
+      </div>
+
+      <div id="scale-arc">
+        <div id="arc-ticks"></div>
+      </div>
+
+      <div class="pan-group" id="pan-left-group">
+        <div class="hanger"></div>
+        <div class="pan" id="pan-left">
+          <div class="pan-contents dropzone" id="pan-left-contents" data-accepts="object"></div>
+        </div>
+        <div class="pan-label">左盤（待測物）</div>
+      </div>
+
+      <div class="pan-group" id="pan-right-group">
+        <div class="hanger"></div>
+        <div class="pan" id="pan-right">
+          <div class="pan-contents dropzone" id="pan-right-contents" data-accepts="weight"></div>
+        </div>
+        <div class="pan-label">右盤（砝碼）</div>
+      </div>
+
+      <div id="beam">
+        <div class="knob knob-left" title="平衡調節螦旋"></div>
+        <div class="pivot-cap"></div>
+        <div class="knob knob-right" title="平衡調節螦旋"></div>
+        <div id="needle"></div>
+      </div>
+
+    </div>
+
+    <div id="rider-panel" class="hidden">
+      <span class="rider-title">游碼（0 ~ 5 g，最小刻度 0.1 g）</span>
+      <div id="rider-track">
+        <div id="rider-ticks"></div>
+        <div id="rider-handle" title="拖曳調整游碼"></div>
+      </div>
+      <span id="rider-value">0.0 g</span>
+    </div>
+  </section>
+
+  <section id="calibration-panel">
+    <button id="knob-minus">◀ 微調（左）</button>
+    <span id="calib-readout">目前狀態：--</span>
+    <button id="knob-plus">微調（右） ▶</button>
+    <button id="confirm-calib" class="primary">確認歸零 ✔</button>
+  </section>
+
+  <section id="measure-panel" class="hidden">
+    <div id="right-total">右盤總質量（砝碼＋游碼）＝ <b>0.0</b> g</div>
+    <div id="balance-status">請放上待測物與砝碼</div>
+    <label>你測得的質量為：
+       <input type="number" step="0.1" id="answer-input" placeholder="請輸入 g">
+       <button id="submit-answer" class="primary">提交這一項</button>
+    </label>
+    <button id="next-object" class="hidden">下一個物品 ➜</button>
+  </section>
+
+  <section id="trays" class="hidden">
+    <div class="tray" id="object-tray">
+      <h3>待測物品：<span id="current-object-name">--</span></h3>
+      <div class="tray-items dropzone" id="object-items" data-accepts="object"></div>
+    </div>
+    <div class="tray" id="weight-box">
+      <h3>砝碼盒（單位：g）</h3>
+      <div class="tray-items dropzone" id="weight-items" data-accepts="weight"></div>
+    </div>
+  </section>
+
+  <section id="final-result" class="hidden">
+    <h2>🎉 測量結果</h2>
+    <div id="result-table"></div>
+    <button id="restart-btn" class="primary">重新開始（新的題目）</button>
+  </section>
+</main>
+
+<footer>
+  <p>操作提醒：① 天平應放在水平桌面上。② 使用前務必歸零。③ 真實實驗中拿放砝碼須使用鎳子輕拿輕放，本模擬以滑鼠／觸控拖曳代替。④ 待測物質量不可超過天平最大量測範圍。</p>
+  <p><a href="https://github.com/" target="_blank">📦 本專案原始碼可自由於 GitHub 取得、修改與教學使用</a></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
