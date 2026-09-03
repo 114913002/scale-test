@@ -4,7 +4,183 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>國中理化｜上皿天平模擬操作</title>
-<link rel="stylesheet" href="style.css">
+<style>
+:root{
+  --blue:#1565c0;
+  --green:#2e7d32;
+  --red:#c62828;
+  --bg:#eef3f8;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;
+  background:linear-gradient(180deg,var(--bg),#dce7f2);
+  color:#243342;
+}
+header{text-align:center;padding:18px 10px 6px;}
+header h1{margin:0 0 4px;font-size:26px;}
+.subtitle{margin:0;font-size:14px;color:#4a5a6a;}
+main{max-width:900px;margin:0 auto;padding:10px 14px 40px;}
+
+#step-indicator{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:12px;}
+.step{padding:8px 16px;border-radius:20px;background:#dbe3ec;color:#607080;font-size:13px;font-weight:600;}
+.step.active{background:var(--blue);color:#fff;}
+
+#message-box{
+  background:#fff;border:2px solid #b9cadf;border-radius:10px;
+  padding:12px 16px;margin-bottom:14px;font-size:14px;line-height:1.5;
+  transition:background .3s;
+}
+#message-box.warn{background:#ffe3e3;border-color:#e57373;}
+
+#balance-area{overflow-x:auto;padding-bottom:6px;}
+#balance{position:relative;width:700px;height:390px;margin:0 auto;}
+
+#stand .pillar{
+  position:absolute;left:342px;top:90px;width:16px;height:260px;
+  background:linear-gradient(90deg,#8d99a3,#5a6570,#8d99a3);z-index:1;
+}
+#stand .base{
+  position:absolute;left:270px;top:350px;width:160px;height:30px;
+  background:linear-gradient(180deg,#6d7580,#4a5058);border-radius:8px;
+  box-shadow:0 4px 6px rgba(0,0,0,.4);z-index:1;
+}
+
+#scale-arc{
+  position:absolute;left:270px;top:190px;width:160px;height:34px;z-index:2;
+  background:rgba(255,255,255,.75);border:1px solid #99aacc;border-radius:6px;
+  display:flex;align-items:center;
+}
+#arc-ticks{display:flex;justify-content:space-between;width:100%;padding:0 8px;}
+.tick{width:2px;height:12px;background:#667;}
+.tick-center{height:20px;background:var(--red);position:relative;display:flex;align-items:flex-end;justify-content:center;}
+.tick-center span{position:absolute;top:-16px;font-size:11px;font-weight:700;color:var(--red);}
+
+#beam{
+  position:absolute;left:120px;top:83px;width:460px;height:14px;
+  background:linear-gradient(180deg,#dfe3e8,#9aa0a6);border-radius:6px;
+  box-shadow:0 3px 5px rgba(0,0,0,.3);
+  transform-origin:50% 50%;
+  transition:transform .25s ease-out;
+  z-index:4;
+}
+.knob{
+  width:16px;height:16px;border-radius:50%;position:absolute;top:-1px;
+  background:radial-gradient(circle at 35% 30%,#fff,#8a8f95 70%);
+  box-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+.knob-left{left:-2px;}
+.knob-right{right:-2px;}
+.pivot-cap{
+  width:20px;height:20px;border-radius:50%;position:absolute;left:50%;top:-4px;
+  transform:translateX(-50%);
+  background:radial-gradient(circle at 35% 30%,#fff,#6d7278 70%);
+  box-shadow:0 2px 3px rgba(0,0,0,.4);z-index:2;
+}
+#needle{
+  position:absolute;left:50%;top:100%;width:3px;height:95px;
+  background:linear-gradient(180deg,#c0392b,#7b1f16);
+  transform:translateX(-50%);border-radius:0 0 3px 3px;
+}
+
+.pan-group{
+  position:absolute;top:105px;width:150px;
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform .25s ease-out;
+  z-index:3;
+}
+#pan-left-group{left:45px;}
+#pan-right-group{left:505px;}
+.hanger{width:2px;height:55px;background:#556;}
+.pan{
+  width:130px;height:34px;border-radius:50%/45%;position:relative;
+  background:linear-gradient(160deg,#f5f7fa,#c3c8ce 55%,#9aa0a6);
+  box-shadow:0 4px 6px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.7);
+  border:1px solid #888;
+}
+.pan-contents{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:114px;display:flex;flex-wrap:wrap;justify-content:center;
+  align-items:flex-end;gap:3px;
+}
+.pan-label{margin-top:6px;font-size:12px;color:#456;font-weight:600;}
+
+@media(max-width:760px){
+  #balance{transform:scale(.62);transform-origin:top left;margin-bottom:-148px;}
+}
+
+#rider-panel{max-width:400px;margin:16px auto 6px;text-align:center;font-size:14px;}
+.rider-title{display:block;margin-bottom:4px;color:#4a5a6a;}
+#rider-track{
+  position:relative;height:26px;background:#e4e9ee;border:1px solid #99a;
+  border-radius:4px;margin:6px auto;width:300px;
+}
+#rider-ticks{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;justify-content:space-between;padding:0 4px;pointer-events:none;}
+.rtick{width:1px;background:#99a;height:100%;position:relative;}
+.rtick span{position:absolute;bottom:-16px;left:-6px;font-size:10px;color:#667;}
+#rider-handle{
+  position:absolute;top:-4px;left:0;width:14px;height:34px;
+  background:linear-gradient(160deg,#f5c542,#b8860b);
+  border:1px solid #7a5a00;border-radius:3px;cursor:grab;
+  box-shadow:0 2px 3px rgba(0,0,0,.4);touch-action:none;
+}
+
+#calibration-panel,#measure-panel{
+  background:#fff;border-radius:10px;border:2px solid #cdd9e6;
+  padding:14px;margin:14px 0;text-align:center;
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;
+}
+button{
+  font-family:inherit;font-size:14px;padding:8px 14px;border-radius:20px;
+  border:1px solid #aaa;background:#f2f5f8;cursor:pointer;transition:.15s;
+}
+button:hover{background:#e2ebf5;}
+button.primary{background:var(--green);color:#fff;border-color:var(--green);font-weight:700;}
+button.primary:hover{background:#256428;}
+#answer-input{width:90px;padding:6px;border-radius:6px;border:1px solid #aaa;font-size:14px;}
+
+#balance-status{font-weight:700;}
+.balanced{color:var(--green);}
+.left-heavy{color:var(--blue);}
+.right-heavy{color:var(--red);}
+
+#trays{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;}
+.tray{flex:1;min-width:260px;background:#fff;border:2px dashed #b9cadf;border-radius:10px;padding:10px;}
+.tray h3{margin:0 0 8px;font-size:15px;color:#365;}
+.tray-items{display:flex;flex-wrap:wrap;gap:8px;padding:8px;min-height:70px;background:#f7fafd;border-radius:8px;}
+
+.item{cursor:grab;user-select:none;display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;}
+.item.dragging{opacity:.85;}
+.weight-token{
+  width:54px;height:34px;border-radius:6px;color:#222;font-weight:bold;
+  background:linear-gradient(145deg,#cfd4da,#8b8f96);
+  box-shadow:0 3px 5px rgba(0,0,0,.3), inset 0 1px 2px rgba(255,255,255,.6);
+  border:1px solid #6d7075;
+}
+.object-token{width:72px;height:52px;}
+.obj-metal{
+  background:linear-gradient(160deg,#e2e6ea,#6f7580 60%,#4a4e55);
+  border-radius:4px;
+  box-shadow:0 4px 6px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.5);
+}
+.obj-metal .obj-label{color:#fff;text-shadow:0 1px 2px #000;font-size:11px;}
+.obj-bean{
+  width:26px!important;height:20px!important;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#a8e063,#56ab2f 70%,#3d7a20);
+  box-shadow:0 2px 3px rgba(0,0,0,.4), inset -2px -2px 4px rgba(0,0,0,.25), inset 2px 2px 3px rgba(255,255,255,.5);
+}
+.obj-bean .obj-label{display:none;}
+
+#final-result{background:#fff;border:2px solid #cdd9e6;border-radius:10px;padding:16px;margin-top:16px;text-align:center;}
+#result-table table{width:100%;border-collapse:collapse;margin:10px 0;}
+#result-table th,#result-table td{border:1px solid #cdd9e6;padding:8px;font-size:14px;}
+#result-table th{background:#eaf1fa;}
+
+.hidden{display:none!important;}
+footer{text-align:center;font-size:12px;color:#667;padding:10px 14px 30px;}
+footer a{color:#667;}
+</style>
 </head>
 <body>
 
@@ -109,9 +285,416 @@
 
 <footer>
   <p>操作提醒：① 天平應放在水平桌面上。② 使用前務必歸零。③ 真實實驗中拿放砝碼須使用鎳子輕拿輕放，本模擬以滑鼠／觸控拖曳代替。④ 待測物質量不可超過天平最大量測範圍。</p>
-  <p><a href="https://github.com/" target="_blank">📦 本專案原始碼可自由於 GitHub 取得、修改與教學使用</a></p>
 </footer>
 
-<script src="script.js"></script>
+<script>
+/* =========================================================
+   國中理化 - 上皿天平模擬操作
+   純 JavaScript，不需任何外部套件
+   ========================================================= */
+
+const WEIGHTS = [50, 20, 10, 10, 5, 2, 2, 1, 1];
+const ARM = 230;
+const K_SENSITIVITY = 8;
+const MAX_ANGLE = 14;
+const BALANCE_TOLERANCE = 0.05;
+
+function randRound1(min, max){
+  return Math.round((Math.random() * (max - min) + min) * 10) / 10;
+}
+
+const OBJECTS = [
+  { id:'metal', name:'金屬塊', mass: randRound1(12, 32), cls:'obj-metal' },
+  { id:'bean',  name:'綠豆',   mass: randRound1(0.1, 0.9), cls:'obj-bean' }
+];
+
+let hiddenZeroError = Math.round((Math.random() * 3 - 1.5) * 10) / 10;
+let knobAdjust = 0;
+let calibrated = false;
+
+let currentObjectIndex = 0;
+let placedObject = null;
+let placedWeights = [];
+let riderValue = 0;
+let results = [];
+
+let beamEl, panLeftGroupEl, panRightGroupEl,
+    panLeftContentsEl, panRightContentsEl,
+    riderTrackEl, riderHandleEl, riderValueEl,
+    calibReadoutEl, messageBoxEl,
+    calibrationPanelEl, measurePanelEl, traysEl,
+    rightTotalEl, balanceStatusEl,
+    answerInputEl, submitBtn, nextObjectBtn,
+    objectItemsEl, weightItemsEl, currentObjectNameEl,
+    finalResultEl, resultTableEl;
+
+document.addEventListener('DOMContentLoaded', init);
+
+function init(){
+  beamEl = document.getElementById('beam');
+  panLeftGroupEl = document.getElementById('pan-left-group');
+  panRightGroupEl = document.getElementById('pan-right-group');
+  panLeftContentsEl = document.getElementById('pan-left-contents');
+  panRightContentsEl = document.getElementById('pan-right-contents');
+  riderTrackEl = document.getElementById('rider-track');
+  riderHandleEl = document.getElementById('rider-handle');
+  riderValueEl = document.getElementById('rider-value');
+  calibReadoutEl = document.getElementById('calib-readout');
+  messageBoxEl = document.getElementById('message-box');
+  calibrationPanelEl = document.getElementById('calibration-panel');
+  measurePanelEl = document.getElementById('measure-panel');
+  traysEl = document.getElementById('trays');
+  rightTotalEl = document.getElementById('right-total');
+  balanceStatusEl = document.getElementById('balance-status');
+  answerInputEl = document.getElementById('answer-input');
+  submitBtn = document.getElementById('submit-answer');
+  nextObjectBtn = document.getElementById('next-object');
+  objectItemsEl = document.getElementById('object-items');
+  weightItemsEl = document.getElementById('weight-items');
+  currentObjectNameEl = document.getElementById('current-object-name');
+  finalResultEl = document.getElementById('final-result');
+  resultTableEl = document.getElementById('result-table');
+
+  buildArcTicks();
+  buildRiderTicks();
+  positionRiderHandle();
+  renderWeightBox();
+
+  document.getElementById('knob-minus').addEventListener('click', ()=>adjustKnob(-0.1));
+  document.getElementById('knob-plus').addEventListener('click', ()=>adjustKnob(0.1));
+  document.getElementById('confirm-calib').addEventListener('click', confirmCalibration);
+  submitBtn.addEventListener('click', onSubmitAnswer);
+  nextObjectBtn.addEventListener('click', onNextObject);
+  document.getElementById('restart-btn').addEventListener('click', ()=>location.reload());
+
+  attachRiderDrag();
+
+  applyTilt(hiddenZeroError + knobAdjust);
+  updateCalibReadout();
+}
+
+function buildArcTicks(){
+  const c = document.getElementById('arc-ticks');
+  for(let i = -5; i <= 5; i++){
+    const t = document.createElement('div');
+    t.className = 'tick' + (i === 0 ? ' tick-center' : '');
+    if(i === 0){
+      const span = document.createElement('span');
+      span.textContent = '0';
+      t.appendChild(span);
+    }
+    c.appendChild(t);
+  }
+}
+function buildRiderTicks(){
+  const c = document.getElementById('rider-ticks');
+  for(let i = 0; i <= 5; i++){
+    const t = document.createElement('div');
+    t.className = 'rtick';
+    const span = document.createElement('span');
+    span.textContent = i;
+    t.appendChild(span);
+    c.appendChild(t);
+  }
+}
+
+function clampAngle(diff){
+  const a = K_SENSITIVITY * diff;
+  return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, a));
+}
+function applyTilt(diff){
+  const angle = clampAngle(diff);
+  beamEl.style.transform = `rotate(${angle}deg)`;
+  const rad = angle * Math.PI / 180;
+  const dy = ARM * Math.sin(rad);
+  panLeftGroupEl.style.transform = `translateY(${(-dy).toFixed(2)}px)`;
+  panRightGroupEl.style.transform = `translateY(${dy.toFixed(2)}px)`;
+  return angle;
+}
+
+function adjustKnob(delta){
+  if(calibrated) return;
+  knobAdjust = Math.round((knobAdjust + delta) * 10) / 10;
+  knobAdjust = Math.max(-3, Math.min(3, knobAdjust));
+  applyTilt(hiddenZeroError + knobAdjust);
+  updateCalibReadout();
+}
+function updateCalibReadout(){
+  const current = hiddenZeroError + knobAdjust;
+  let text, cls;
+  if(Math.abs(current) <= BALANCE_TOLERANCE){ text='指針置中 ✅'; cls='balanced'; }
+  else if(current > 0){ text='指針偏右 ➡'; cls='right-heavy'; }
+  else { text='指針偏左 ⬅'; cls='left-heavy'; }
+  calibReadoutEl.textContent = '目前狀態：' + text;
+  calibReadoutEl.className = cls;
+}
+function confirmCalibration(){
+  const current = hiddenZeroError + knobAdjust;
+  if(Math.abs(current) <= BALANCE_TOLERANCE){
+    calibrated = true;
+    calibrationPanelEl.classList.add('hidden');
+    measurePanelEl.classList.remove('hidden');
+    traysEl.classList.remove('hidden');
+    document.getElementById('rider-panel').classList.remove('hidden');
+    messageBoxEl.classList.remove('warn');
+    messageBoxEl.textContent = '校正完成！請將待測物放上左盤，並在右盤加入砝碼、調整游碼，使天平恢復平衡後讀取右盤總質量。';
+    setStep(2);
+    loadCurrentObjectIntoTray();
+    applyTilt(0);
+    updateScale();
+  } else {
+    messageBoxEl.classList.add('warn');
+    messageBoxEl.textContent = '⚠️ 尚未歸零，指針未置中，請繼續調整平衡螦旋！';
+  }
+}
+
+function setStep(n){
+  for(let i=1;i<=4;i++){
+    document.getElementById('step'+i).classList.toggle('active', i===n);
+  }
+}
+
+function loadCurrentObjectIntoTray(){
+  objectItemsEl.innerHTML = '';
+  const obj = OBJECTS[currentObjectIndex];
+  currentObjectNameEl.textContent = obj.name;
+  objectItemsEl.appendChild(createObjectToken(obj));
+}
+function renderWeightBox(){
+  weightItemsEl.innerHTML = '';
+  WEIGHTS.forEach((v,i) => weightItemsEl.appendChild(createWeightToken(v, i)));
+}
+function createWeightToken(value, idx){
+  const el = document.createElement('div');
+  el.className = 'item weight-token';
+  el.dataset.type = 'weight';
+  el.dataset.value = value;
+  el.id = 'w' + idx + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  el.textContent = value + 'g';
+  makeDraggable(el);
+  return el;
+}
+function createObjectToken(obj){
+  const el = document.createElement('div');
+  el.className = 'item object-token ' + obj.cls;
+  el.dataset.type = 'object';
+  el.dataset.mass = obj.mass;
+  el.title = obj.name;
+  const label = document.createElement('span');
+  label.className = 'obj-label';
+  label.textContent = obj.name;
+  el.appendChild(label);
+  makeDraggable(el);
+  return el;
+}
+
+function makeDraggable(el){
+  el.style.touchAction = 'none';
+  el.addEventListener('pointerdown', (e) => {
+    if(!calibrated) return;
+    e.preventDefault();
+    const startParent = el.parentElement;
+    const rect = el.getBoundingClientRect();
+    const offX = e.clientX - rect.left;
+    const offY = e.clientY - rect.top;
+
+    document.body.appendChild(el);
+    el.style.position = 'fixed';
+    el.style.zIndex = 1000;
+    el.style.pointerEvents = 'none';
+    el.classList.add('dragging');
+    place(e);
+
+    function place(ev){
+      el.style.left = (ev.clientX - offX) + 'px';
+      el.style.top = (ev.clientY - offY) + 'px';
+    }
+    function onMove(ev){ place(ev); }
+    function onUp(ev){
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      el.style.pointerEvents = '';
+      el.classList.remove('dragging');
+
+      const under = document.elementFromPoint(ev.clientX, ev.clientY);
+      const zone = under ? under.closest('.dropzone') : null;
+      let target;
+      if(zone && zone.dataset.accepts === el.dataset.type){
+        target = zone;
+      } else {
+        target = startParent;
+      }
+      el.style.position = '';
+      el.style.left = '';
+      el.style.top = '';
+      el.style.zIndex = '';
+      onDropped(el, target);
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+
+function onDropped(el, target){
+  const type = el.dataset.type;
+
+  if(type === 'object' && placedObject && placedObject.el === el) placedObject = null;
+  if(type === 'weight') placedWeights = placedWeights.filter(w => w.el !== el);
+
+  if(target === panLeftContentsEl && type === 'object'){
+    if(panLeftContentsEl.firstChild && panLeftContentsEl.firstChild !== el){
+      const old = panLeftContentsEl.firstChild;
+      objectItemsEl.appendChild(old);
+    }
+  }
+
+  target.appendChild(el);
+
+  if(target === panLeftContentsEl && type === 'object'){
+    placedObject = { el, mass: parseFloat(el.dataset.mass) };
+  }
+  if(target === panRightContentsEl && type === 'weight'){
+    placedWeights.push({ el, value: parseFloat(el.dataset.value) });
+  }
+  updateScale();
+}
+
+function attachRiderDrag(){
+  riderHandleEl.addEventListener('pointerdown', (e) => {
+    if(!calibrated) return;
+    e.preventDefault();
+    const trackRect = riderTrackEl.getBoundingClientRect();
+    move(e);
+    function move(ev){
+      let x = ev.clientX - trackRect.left;
+      x = Math.max(0, Math.min(trackRect.width, x));
+      let val = (x / trackRect.width) * 5;
+      val = Math.round(val * 10) / 10;
+      riderValue = val;
+      positionRiderHandle();
+      riderValueEl.textContent = val.toFixed(1) + ' g';
+      updateScale();
+    }
+    function onMove(ev){ move(ev); }
+    function onUp(){
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    }
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  });
+}
+function positionRiderHandle(){
+  const trackWidth = riderTrackEl.clientWidth || 300;
+  const handleWidth = 14;
+  const x = (riderValue / 5) * (trackWidth - handleWidth);
+  riderHandleEl.style.left = x + 'px';
+}
+
+function updateScale(){
+  if(!calibrated) return;
+  const leftMass = placedObject ? placedObject.mass : 0;
+  const rightMass = placedWeights.reduce((s,w)=>s+w.value,0) + riderValue;
+  const diff = rightMass - leftMass;
+  applyTilt(diff);
+
+  rightTotalEl.querySelector('b').textContent = rightMass.toFixed(1);
+
+  if(Math.abs(diff) <= BALANCE_TOLERANCE){
+    balanceStatusEl.textContent = '⚖️ 已平衡！可以讀取右盤總質量。';
+    balanceStatusEl.className = 'balanced';
+  } else if(diff > 0){
+    balanceStatusEl.textContent = '➡ 右盤（砝碼）較重，請減少右盤質量';
+    balanceStatusEl.className = 'right-heavy';
+  } else {
+    balanceStatusEl.textContent = '⬅ 左盤（待測物）較重，請增加右盤質量';
+    balanceStatusEl.className = 'left-heavy';
+  }
+}
+
+function onSubmitAnswer(){
+  const leftMass = placedObject ? placedObject.mass : 0;
+  const rightMass = placedWeights.reduce((s,w)=>s+w.value,0) + riderValue;
+
+  if(!placedObject){
+    alert('請先將待測物放上左盤！');
+    return;
+  }
+  if(Math.abs(rightMass - leftMass) > BALANCE_TOLERANCE){
+    alert('天平尚未平衡，請調整砝碼與游碼後再讀值！');
+    return;
+  }
+  const typed = parseFloat(answerInputEl.value);
+  if(isNaN(typed)){
+    alert('請輸入你讀出的質量數值！');
+    return;
+  }
+
+  const obj = OBJECTS[currentObjectIndex];
+  const ok = Math.abs(typed - rightMass) <= BALANCE_TOLERANCE;
+
+  results.push({ name: obj.name, trueMass: obj.mass, measured: rightMass, typed });
+
+  if(ok){
+    balanceStatusEl.textContent = '✅ 讀值正確！可以進入下一個物品。';
+    balanceStatusEl.className = 'balanced';
+    nextObjectBtn.classList.remove('hidden');
+    submitBtn.disabled = true;
+    answerInputEl.disabled = true;
+  } else {
+    balanceStatusEl.textContent = `❌ 讀值有誤，右盤實際總質量為 ${rightMass.toFixed(1)} g，請重新加總後再提交。`;
+    balanceStatusEl.className = 'right-heavy';
+    results.pop();
+  }
+}
+
+function onNextObject(){
+  panLeftContentsEl.innerHTML = '';
+  panRightContentsEl.innerHTML = '';
+  placedObject = null;
+  placedWeights = [];
+  riderValue = 0;
+  positionRiderHandle();
+  riderValueEl.textContent = '0.0 g';
+  renderWeightBox();
+
+  submitBtn.disabled = false;
+  answerInputEl.disabled = false;
+  answerInputEl.value = '';
+  nextObjectBtn.classList.add('hidden');
+
+  currentObjectIndex++;
+  if(currentObjectIndex < OBJECTS.length){
+    loadCurrentObjectIntoTray();
+    setStep(3);
+    messageBoxEl.textContent = '請繼續測量下一個物品：' + OBJECTS[currentObjectIndex].name;
+    applyTilt(0);
+    updateScale();
+  } else {
+    measurePanelEl.classList.add('hidden');
+    traysEl.classList.add('hidden');
+    document.getElementById('rider-panel').classList.add('hidden');
+    finalResultEl.classList.remove('hidden');
+    renderFinalResults();
+    setStep(4);
+    messageBoxEl.textContent = '🎉 所有物品測量完成！請查看下方結果。';
+    applyTilt(0);
+  }
+}
+
+function renderFinalResults(){
+  resultTableEl.innerHTML = '';
+  const table = document.createElement('table');
+  table.innerHTML = '<tr><th>物品</th><th>你測得的質量(g)</th><th>真實質量(g)</th><th>誤差(g)</th><th>評價</th></tr>';
+  results.forEach(r => {
+    const err = Math.abs(r.typed - r.trueMass);
+    const grade = err <= 0.15 ? '✅ 準確' : (err <= 0.5 ? '🟡 尚可' : '❌ 誤差過大');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.name}</td><td>${r.typed.toFixed(1)}</td><td>${r.trueMass.toFixed(1)}</td><td>${err.toFixed(1)}</td><td>${grade}</td>`;
+    table.appendChild(tr);
+  });
+  resultTableEl.appendChild(table);
+}
+</script>
 </body>
 </html>
